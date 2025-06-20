@@ -1,0 +1,87 @@
+classDiagram
+
+class MainCategory {
+    uint16 Id
+    string Name
+
+    -New(O):id
+    -GetList()
+
+    Update(O):
+    Del(id):
+    //Get()
+    //Del()
+
+    +GetSubList():+o[]
+    +AddSub(o):id
+
+
+}
+
+class SubCategory {
+    uint64 Id
+    string Name
+    string Icon
+     
+    Update(O):
+    Del(id):
+    //Get()
+    //Del()
+    +GetSwList():+o[]
+    +AddSw(o):id
+
+}
+
+class Software {
+
+    uint64 Id
+    string Name
+    uint8 Type
+    string Icon
+    string Description
+    uint8 Rate
+    uint64 DownloadNum
+    string[] Images
+    string Author
+    string Document
+    评论区url string
+
+    MetaData[] MetaDatas
+    Update(O):
+    Del(id):
+    //Get()
+    //Del()
+
+    +GetVerList():+o[]
+    +AddVer(o):id
+
+
+}
+
+class Version {
+    uint64 Id
+    string VersionNumber
+    uint64 Size
+    uint16 action
+    string Binaryurl
+
+    Update(O):
+    Del(id):
+    //Get()
+    //Del()
+
+}
+
+
+class MetaData {
+    string key
+    string value
+}
+
+
+
+MainCategory "1" -- "many" SubCategory : IDrefer
+SubCategory "many" -- "many" Software : IDrefer
+Software "1" -- "many" Version : has
+
+Software "1" -- "many" MetaData : json-inlined
