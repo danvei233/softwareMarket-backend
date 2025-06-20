@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/Swmarket/app/domain"
+	"github.com/danvei233/softwareMarket-backend/app/domain"
 	"gorm.io/gorm"
 )
 
@@ -11,11 +11,9 @@ type SQLMainCategoryRepo struct {
 	db *gorm.DB
 }
 
-
 func NewMainCategoryRepo(db *gorm.DB) domain.MainCategoryRepository {
 	return &SQLMainCategoryRepo{db: db}
 }
-
 
 func (r *SQLMainCategoryRepo) GetBigStrctUntilSoftware(ctx context.Context) ([]domain.MainCategory, error) {
 	var mains []domain.MainCategory
