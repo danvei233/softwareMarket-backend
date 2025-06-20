@@ -20,21 +20,9 @@ func NewMainCategoryRepo(db *gorm.DB) domain.MainCategoryRepository {
 func (r *SQLMainCategoryRepo) GetBigStrctUntilSoftware(ctx context.Context) ([]domain.MainCategory, error) {
 	var mains []domain.MainCategory
 	if err := r.db.WithContext(ctx).
-		Preload("SubCategories").
+		Preload("SubCategories.Softwares").
 		Find(&mains).Error; err != nil {
 		return nil, err
-	}
-
-	for i := range mains {
-		for j := range mains[i].SubCategories {
-			var list []*domain.Software
-			if err := r.db.WithContext(ctx).
-				Where("parent_id = ?", mains[i].SubCategories[j].ID).
-				Find(&list).Error; err != nil {
-				return nil, err
-			}
-			mains[i].SubCategories[j].Softwares = list
-		}
 	}
 	return mains, nil
 }
