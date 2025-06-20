@@ -11,12 +11,12 @@ type SQLMainCategoryRepo struct {
 	db *gorm.DB
 }
 
-// NewMainCategoryRepo creates a MainCategoryRepository backed by GORM.
+
 func NewMainCategoryRepo(db *gorm.DB) domain.MainCategoryRepository {
 	return &SQLMainCategoryRepo{db: db}
 }
 
-// GetBigStrctUntilSoftware returns all main categories with their subcategories and softwares (no versions).
+
 func (r *SQLMainCategoryRepo) GetBigStrctUntilSoftware(ctx context.Context) ([]domain.MainCategory, error) {
 	var mains []domain.MainCategory
 	if err := r.db.WithContext(ctx).
@@ -24,7 +24,7 @@ func (r *SQLMainCategoryRepo) GetBigStrctUntilSoftware(ctx context.Context) ([]d
 		Find(&mains).Error; err != nil {
 		return nil, err
 	}
-	// Load softwares for each subcategory
+
 	for i := range mains {
 		for j := range mains[i].SubCategories {
 			var list []*domain.Software
