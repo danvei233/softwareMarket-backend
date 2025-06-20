@@ -5,15 +5,16 @@ import (
 )
 
 type SubCategory struct {
-	Id         uint64
-	Name       string
-	Icon       string
-	ParentId   uint64  
+	ID       uint64       `gorm:"primaryKey;autoIncrement"`
+	Name     string       `gorm:"type:varchar(255);not null"`
+	Icon     string       `gorm:"type:varchar(255)"`
+	ParentID uint64       `gorm:"not null;index"`
+	Softwares  []*Software `gorm:"foreignKey:ParentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
+
 
 type SubCategoryRepository interface {
 	Update(ctx context.Context, o *SubCategory) error
-	Delete(ctx context.Context, id uint64) error
-	GetSwList(ctx context.Context) ([]*SubCategory, error)
-	AddSw(ctx context.Context, o *SubCategory) (uint64, error)
+	Del(ctx context.Context, id uint64) error
+	GetSoftwareList(ctx context.Context, subCategoryID uint64) ([]*Software, error)
 }
