@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/Swmarket/app/domain"
+	"github.com/danvei233/softwareMarket-backend/app/domain"
 )
 
 // setupTestDB creates an in-memory SQLite database and migrates domain models.

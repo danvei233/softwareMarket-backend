@@ -1,4 +1,4 @@
-module github.com/Swmarket
+module github.com/danvei233/softwareMarket-backend
 
 go 1.23.3
 

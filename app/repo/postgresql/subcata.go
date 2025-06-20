@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/Swmarket/app/domain"
+	"github.com/danvei233/softwareMarket-backend/app/domain"
 	"gorm.io/gorm"
 )
 
@@ -19,8 +19,6 @@ func (r *SQLSubCategoryRepo) Update(ctx context.Context, o *domain.SubCategory) 
 	if o.ID == 0 {
 		return r.db.WithContext(ctx).Create(o).Error
 	}
-
-
 
 	return r.db.WithContext(ctx).
 		Model(&domain.SubCategory{}).

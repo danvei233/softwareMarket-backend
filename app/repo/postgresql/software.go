@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/Swmarket/app/domain"
+	"github.com/danvei233/softwareMarket-backend/app/domain"
 	"gorm.io/gorm"
 )
 
