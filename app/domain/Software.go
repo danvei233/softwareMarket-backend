@@ -18,6 +18,7 @@ type Software struct {
 	Document    string     `gorm:"type:varchar(255)"`          // 文档 URL
 	CommentURL  string     `gorm:"type:varchar(255)"`          // 评论区 URL
 	Meta        []MetaData `gorm:"type:json;serializer:json"`  // 元数据 JSON 存储
+	Versions    []Version  `gorm:"foreignKey:ParentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 type MetaData struct {
@@ -25,9 +26,9 @@ type MetaData struct {
 	Value string `gorm:"type:text"`
 }
 
-
-type SoftwareService interface {
+type SoftwareRepository interface {
+	GetSoftwareDetail(ctx context.Context, id uint64) (*Software, error)
 	Del(ctx context.Context, id uint64) error
-	GetVerList(ctx context.Context, softwareID uint64) ([]Version, error)
+	GetVerList(ctx context.Context, softwareID uint64) (*[]Version, error)
 	Update(ctx context.Context, softwareID uint64, software *Software) error
 }

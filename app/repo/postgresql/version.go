@@ -7,28 +7,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type sqlVersionRepo struct {
-	db *gorm.DB
-}
-
 type SQLVersionRepo struct {
-	db *gorm.DB
+	db dt
 }
 
 func NewVersionRepo(db *gorm.DB) domain.VersionRepository {
-	return &SQLVersionRepo{db: db}
+	return &SQLVersionRepo{db: dt{db: db}}
 }
 
 func (r *SQLVersionRepo) Update(ctx context.Context, v *domain.Version) error {
 	if v.ID == 0 {
-		return r.db.WithContext(ctx).Create(v).Error
+		return r.db.WithTransaction(ctx).WithContext(ctx).Create(v).Error
 	}
-	return r.db.WithContext(ctx).
+	return r.db.WithTransaction(ctx).WithContext(ctx).
 		Model(&domain.Version{}).
 		Where("id = ?", v.ID).
 		Updates(v).Error
 }
 
 func (r *SQLVersionRepo) Del(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&domain.Version{}, id).Error
+	return r.db.WithTransaction(ctx).WithContext(ctx).Delete(&domain.Version{}, id).Error
 }
