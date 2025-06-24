@@ -14,12 +14,15 @@ import (
 	"github.com/danvei233/softwareMarket-backend/app/domain"
 )
 
-// setupTestDB creates an in-memory SQLite database and migrates domain models.
-func setupTestDB(t *testing.T) *gorm.DB {
-
+// setupTestDB creates a PostgreSQL database and migrates domain models.
+func setupTestDB(tb testing.TB) *gorm.DB {
 	dsn := "host=localhost user=postgres password=root dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	assert.NoError(t, err)
+	if tb != nil {
+		assert.NoError(tb, err)
+	} else if err != nil {
+		panic(err)
+	}
 
 	err = db.AutoMigrate(
 		&domain.MainCategory{},
@@ -27,7 +30,11 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		&domain.Software{},
 		&domain.Version{},
 	)
-	assert.NoError(t, err)
+	if tb != nil {
+		assert.NoError(tb, err)
+	} else if err != nil {
+		panic(err)
+	}
 	return db
 }
 
@@ -51,7 +58,7 @@ func TestGetBigStructUntilSoftware_JSON(t *testing.T) {
 	}
 
 	repo := NewMainCategoryRepo(db)
-	result, err := repo.GetBigStrctUntilSoftware(ctx)
+	result, err := repo.GetBigStructUntilSoftware(ctx)
 	assert.NoError(t, err)
 	fmt.Print(len(*result))
 	assert.Len(t, *result, 100)
@@ -61,7 +68,7 @@ func TestGetBigStructUntilSoftware_JSON(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Output JSON
-	t.Logf("GetBigStrctUntilSoftware JSON: %s", data)
+	t.Logf("RetrieveMainCategoryDetails JSON: %s", data)
 	fmt.Println(string(data))
 }
 
@@ -83,7 +90,7 @@ func TestGetSoftwareList_JSON(t *testing.T) {
 	}
 
 	subRepo := NewSubCategoryRepo(db)
-	list, err := subRepo.GetSoftwareList(ctx, sc.ID)
+	list, err := subRepo.GetSoftwareList(ctx, sc.ID, 1, 50)
 	assert.NoError(t, err)
 	assert.Len(t, list, 50)
 
@@ -96,25 +103,28 @@ func TestGetSoftwareList_JSON(t *testing.T) {
 
 // BenchmarkGetBigStructUntilSoftware runs the get method on large data.
 func BenchmarkGetBigStructUntilSoftware(b *testing.B) {
-	db := setupTestDB(nil)
+	db := setupTestDB(b)
 	ctx := context.Background()
 
-	// Pre-seed moderate data
-	//for i := 1; i <= 15; i++ {
-	//	mc := domain.MainCategory{Name: fmt.Sprintf("BMMain-%d", i)}
-	//	db.Create(&mc)
-	//	for j := 1; j <= 30; j++ {
-	//		sc := domain.SubCategory{ParentID: mc.ID, Name: fmt.Sprintf("BMSub-%d-%d", i, j)}
-	//		db.Create(&sc)
-	//		for k := 1; k <= 500; k++ {
-	//			db.Create(&domain.Software{ParentID: sc.ID, Name: fmt.Sprintf("BMSoft-%d-%d-%d", i, j, k)})
-	//		}
-	//	}
-	//}
+	//Pre-seed moderate data
+	for i := 1; i <= 15; i++ {
+		mc := domain.MainCategory{Name: fmt.Sprintf("BMMain-%d", i)}
+		db.Create(&mc)
+		for j := 1; j <= 30; j++ {
+			sc := domain.SubCategory{ParentID: mc.ID, Name: fmt.Sprintf("BMSub-%d-%d", i, j)}
+			db.Create(&sc)
+			for k := 1; k <= 500; k++ {
+				db.Create(&domain.Software{ParentID: sc.ID, Name: fmt.Sprintf("BMSoft-%d-%d-%d", i, j, k)})
+			}
+		}
+	}
 	repo := NewMainCategoryRepo(db)
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		repo.GetBigStrctUntilSoftware(ctx)
+		_, err := repo.GetBigStructUntilSoftware(ctx)
+		if err != nil {
+			return
+		}
 	}
 	var sw domain.Software
 	err := db.WithContext(ctx).First(&sw).Error
@@ -124,52 +134,53 @@ func BenchmarkGetBigStructUntilSoftware(b *testing.B) {
 }
 
 // 手动查询实现
-func BenchmarkGetBigStructUntilSoftware_RawSQL(b *testing.B) {
-	db := setupTestDB(nil)
-	ctx := context.Background()
-
-	// // Pre-seed moderate data
-	// for i := 1; i <= 15; i++ {
-	// 	mc := domain.MainCategory{Name: fmt.Sprintf("BMMain-%d", i)}
-	// 	db.Create(&mc)
-	// 	for j := 1; j <= 30; j++ {
-	// 		sc := domain.SubCategory{ParentID: mc.ID, Name: fmt.Sprintf("BMSub-%d-%d", i, j)}
-	// 		db.Create(&sc)
-	// 		for k := 1; k <= 500; k++ {
-	// 			db.Create(&domain.Software{ParentID: sc.ID, Name: fmt.Sprintf("BMSoft-%d-%d-%d", i, j, k)})
-	// 		}
-	// 	}
-	// }
-	type Row struct {
-		MainCategoryID   uint
-		MainCategoryName string
-		SubCategoryID    uint
-		SubCategoryName  string
-		SoftwareID       uint
-		SoftwareName     string
-	}
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		var rows []Row
-		db.WithContext(ctx).Raw(`
-			SELECT 
-				m.id as main_category_id, m.name as main_category_name,
-				s.id as sub_category_id, s.name as sub_category_name,
-				sw.id as software_id, sw.name as software_name
-			FROM main_categories m
-			JOIN sub_categories s ON s.parent_id = m.id
-			JOIN software sw ON sw.parent_id = s.id
-		`).Scan(&rows)
-		// 可选：构建嵌套结构（略）
-	}
-	var sw domain.Software
-	err := db.WithContext(ctx).First(&sw).Error
-	if err == nil {
-		b.Logf("Random Software: %+v", sw)
-	}
-}
+//
+//	func BenchmarkGetBigStructUntilSoftware_RawSQL(b *testing.B) {
+//		db := setupTestDB(b)
+//		ctx := context.Background()
+//
+//		// // Pre-seed moderate data
+//		// for i := 1; i <= 15; i++ {
+//		// 	mc := domain.MainCategory{Name: fmt.Sprintf("BMMain-%d", i)}
+//		// 	db.Create(&mc)
+//		// 	for j := 1; j <= 30; j++ {
+//		// 		sc := domain.SubCategory{ParentID: mc.ID, Name: fmt.Sprintf("BMSub-%d-%d", i, j)}
+//		// 		db.Create(&sc)
+//		// 		for k := 1; k <= 500; k++ {
+//		// 			db.Create(&domain.Software{ParentID: sc.ID, Name: fmt.Sprintf("BMSoft-%d-%d-%d", i, j, k)})
+//		// 		}
+//		// 	}
+//		// }
+//		type Row struct {
+//			MainCategoryID   uint
+//			MainCategoryName string
+//			SubCategoryID    uint
+//			SubCategoryName  string
+//			SoftwareID       uint
+//			SoftwareName     string
+//		}
+//		b.ResetTimer()
+//		for n := 0; n < b.N; n++ {
+//			var rows []Row
+//			db.WithContext(ctx).Raw(`
+//										SELECT
+//											m.id as "main_category_id", m.name as "main_category_name",
+//											s.id as "sub_category_id", s.name as "sub_category_name",
+//											sw."id" as "software_id", sw.name as "software_name"
+//										FROM main_categories m
+//										JOIN "sub_categories" s ON s.parent_id = m.id
+//										JOIN software sw ON sw.parent_id = s.id
+//									`).Scan(&rows)
+//			// 可选：构建嵌套结构（略）
+//		}
+//		var sw domain.Software
+//		err := db.WithContext(ctx).First(&sw).Error
+//		if err == nil {
+//			b.Logf("Random Software: %+v", sw)
+//		}
+//	}
 func BenchmarkGetBigStructUntilSoftware_Manual(b *testing.B) {
-	db := setupTestDB(nil)
+	db := setupTestDB(b)
 	ctx := context.Background()
 
 	// Pre-seed moderate data

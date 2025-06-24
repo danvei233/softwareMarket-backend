@@ -11,8 +11,14 @@ type MainCategory struct {
 }
 
 type MainCategoryRepository interface {
-	GetBigStrctUntilSoftware(ctx context.Context) (*[]MainCategory, error)
+	GetMainCategoryList(ctx context.Context) (*[]MainCategory, error)
+	RetrieveMainCategoryDetails(ctx context.Context,
+		id uint64,
+		subPage, subLimit int,
+		softPage, softLimit int) (*MainCategory, error)
+
 	Update(ctx context.Context, o MainCategory) error
 	Del(ctx context.Context, id uint64) error
-	GetSubList(ctx context.Context, id uint64) (*[]SubCategory, error)
+	GetSubListByMainId(ctx context.Context, id uint64) (*[]SubCategory, error)
+	GetBigStructUntilSoftware(ctx context.Context) (*[]MainCategory, error)
 }

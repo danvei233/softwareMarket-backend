@@ -94,11 +94,45 @@ func TestGetService_GetAllSoftware(t *testing.T) {
 	}
 
 	// 调用
-	list, err := getSvc.GetAllSoftWare(ctx)
+	list, err := getSvc.GetAllSoftWareShortcut(ctx)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, list)
 
 	data, _ := json.MarshalIndent(list, "", "  ")
 	t.Logf("All Software:\n%s", data)
+	fmt.Println(string(data))
+}
+
+func TestGetService_GetSubList(t *testing.T) {
+	db := setupTestDB(t)
+	ctx := context.Background()
+
+	// 构造测试数据
+	main := domain.MainCategory{Name: "MainCategory"}
+	assert.NoError(t, db.Create(&main).Error)
+
+	// 创建多个子类别
+	sub1 := domain.SubCategory{Name: "SubCategory1", ParentID: main.ID}
+	assert.NoError(t, db.Create(&sub1).Error)
+	sub2 := domain.SubCategory{Name: "SubCategory2", ParentID: main.ID}
+	assert.NoError(t, db.Create(&sub2).Error)
+
+	// 使用构造函数创建服务
+	mainRepo := sr.NewMainCategoryRepo(db)
+	getSvc := NewGetService(db, mainRepo, nil, nil, nil)
+
+	// 调用GetSubList方法
+	subList, err := getSvc.GetSubList(ctx, main.ID)
+	assert.NoError(t, err)
+	assert.NotNil(t, subList)
+	assert.Len(t, *subList, 2)
+
+	// 验证子类别数据
+	categories := *subList
+	assert.Contains(t, []string{categories[0].Name, categories[1].Name}, "SubCategory1")
+	assert.Contains(t, []string{categories[0].Name, categories[1].Name}, "SubCategory2")
+
+	data, _ := json.MarshalIndent(subList, "", "  ")
+	t.Logf("SubCategory List:\n%s", data)
 	fmt.Println(string(data))
 }

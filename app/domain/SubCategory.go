@@ -15,5 +15,5 @@ type SubCategory struct {
 type SubCategoryRepository interface {
 	Update(ctx context.Context, o *SubCategory) error
 	Del(ctx context.Context, id uint64) error
-	GetSoftwareList(ctx context.Context, subCategoryID uint64) ([]*Software, error)
+	GetSoftwareList(ctx context.Context, subCategoryID uint64, softPage int, softLimit int) (*SubCategory, error)
 }

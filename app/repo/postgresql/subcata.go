@@ -30,12 +30,19 @@ func (r *SQLSubCategoryRepo) Del(ctx context.Context, id uint64) error {
 	return r.db.WithTransaction(ctx).WithContext(ctx).Delete(&domain.SubCategory{}, id).Error
 }
 
-func (r *SQLSubCategoryRepo) GetSoftwareList(ctx context.Context, subCategoryID uint64) ([]*domain.Software, error) {
-	var list []*domain.Software
+func (r *SQLSubCategoryRepo) GetSoftwareList(ctx context.Context, subCategoryID uint64, softPage int, softLimit int) (*domain.SubCategory, error) {
+	list := domain.SubCategory{ID: subCategoryID}
 	if err := r.db.WithTransaction(ctx).WithContext(ctx).
-		Where("parent_id = ?", subCategoryID).
-		Find(&list).Error; err != nil {
+		Where("id = ?", subCategoryID).
+		Preload("Softwares",
+			func(db *gorm.DB) *gorm.DB {
+				return db.Limit(softLimit).
+					Offset((softPage - 1) * softLimit).
+					Order("id ASC")
+			}).
+		Find(&list).
+		Error; err != nil {
 		return nil, err
 	}
-	return list, nil
+	return &list, nil
 }
