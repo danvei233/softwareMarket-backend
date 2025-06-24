@@ -23,9 +23,9 @@ func NewGetHandeler(s *getservice.GetService, r *gin.RouterGroup) *GetHandler {
 }
 func (h *GetHandler) GetSoftwareFromSubcategory(g *gin.Context) {
 	var query struct {
-		Id       uint64 `form:"id" binding:"required"`
-		Subpage  int    `form:"subpage,default=1"`
-		Sublimit int    `form:"sublimit,default=20"`
+		Id    uint64 `form:"id" binding:"required"`
+		Page  int    `form:"subpage,default=1"`
+		Limit int    `form:"sublimit,default=20"`
 	}
 
 	err := g.BindQuery(&query)
@@ -35,14 +35,14 @@ func (h *GetHandler) GetSoftwareFromSubcategory(g *gin.Context) {
 		return
 	}
 
-	list, err := h.s.GetSoftwareFromSubcategory(g, query.Id, query.Sublimit, query.Subpage)
+	list, err := h.s.GetSoftwareFromSubcategory(g, query.Id, query.Page, query.Limit)
 	if err != nil {
 		g.JSON(500, gin.H{"msg": err.Error()})
 		return
 	}
 	g.JSON(200, gin.H{"msg": "ok",
-		"page":  query.Subpage,
-		"limit": query.Sublimit,
+		"page":  query.Page,
+		"limit": query.Limit,
 		"data":  list})
 }
 
@@ -61,7 +61,7 @@ func (h *GetHandler) GetSoftwareShortCut(g *gin.Context) {
 		SubPage   int    `form:"subpage,default=1"`
 		SubLimit  int    `form:"sublimit,default=20"`
 		SoftPage  int    `form:"softpage,default=1"`
-		SoftLimit int    `form:"softlimit,default=20"`
+		SoftLimit int    `form:"softlimit,default=400"`
 	}
 	err := g.BindQuery(&query)
 
