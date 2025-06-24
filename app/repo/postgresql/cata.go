@@ -96,14 +96,11 @@ func (r *SQLMainCategoryRepo) GetSubListByMainId(ctx context.Context, id uint64)
 func (r *SQLMainCategoryRepo) GetBigStructUntilSoftware(ctx context.Context) (*[]domain.MainCategory, error) {
 	var mainCategories []domain.MainCategory
 
-	err := r.db.WithTransaction(ctx).WithContext(ctx).
+	if err := r.db.WithTransaction(ctx).WithContext(ctx).
 		Preload("SubCategories").
 		Preload("SubCategories.Softwares").
-		Find(&mainCategories).Error
-
-	if err != nil {
+		Find(&mainCategories).Error;err != nil {
 		return nil, err
 	}
-
 	return &mainCategories, nil
 }
