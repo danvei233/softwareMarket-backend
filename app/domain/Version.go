@@ -13,7 +13,6 @@ type Version struct {
 	BinaryURL     string `gorm:"type:varchar(255)"`          // 二进制下载 URL
 }
 
-
 type VersionRepository interface {
 	Update(ctx context.Context, v *Version) error
 	Del(ctx context.Context, id uint64) error
