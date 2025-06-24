@@ -19,13 +19,9 @@ func NewMainCategoryRepo(db *gorm.DB) domain.MainCategoryRepository {
 }
 
 func (d *dt) WithTransaction(ctx context.Context) *gorm.DB {
-	tx := ctx.Value("tx")
-	if txDB, ok := tx.(*gorm.DB); ok && txDB != nil {
-
-		return txDB
-
-	}
-	return d.db
+if txDB, ok := ctx.Value("tx").(*gorm.DB); ok || txDB != nil {
+	return txDB
+}
 }
 func (r *SQLMainCategoryRepo) GetMainCategoryList(ctx context.Context) (*[]domain.MainCategory, error) {
 	var mains []domain.MainCategory
