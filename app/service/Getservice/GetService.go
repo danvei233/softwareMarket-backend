@@ -96,7 +96,7 @@ func (s *GetService) GetSubList(ctx context.Context, id uint64) (*[]domain.SubCa
 	var err error
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		ctxv := context.WithValue(ctx, "tx", tx)
+ctxV := context.WithValue(ctx, "tx", tx)
 		subList, err = s.r.main.GetSubListByMainId(ctxv, id)
 		return err
 	})
