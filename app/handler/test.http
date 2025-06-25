@@ -1,0 +1,13 @@
+### GET request to server
+GET 127.0.0.1:8080/api/v1/getsoftwareshortcut?id=1
+
+###
+GET 127.0.0.1:8080/api/v1/getsoftwaredetail?id=2
+###
+
+GET 127.0.0.1:8080/api/v1/getmaincategorylist
+###
+
+GET 127.0.0.1:8080/api/v1/getsoftwarefromsubcategory?id=1
+###
+GET 127.0.0.1:8080/api/v1/getsubcategorylist?id=1

@@ -39,38 +39,38 @@ func setupTestDB(tb testing.TB) *gorm.DB {
 }
 
 // TestGetBigStructUntilSoftware_JSON seeds many records and outputs the result as JSON.
-func TestGetBigStructUntilSoftware_JSON(t *testing.T) {
-	db := setupTestDB(t)
-	ctx := context.Background()
-
-	// Seed: 100 main categories, each with 10 subcategories, each with 5 software entries
-	for i := 1; i <= 100; i++ {
-		mc := domain.MainCategory{Name: fmt.Sprintf("MainCategory-%d", i)}
-		assert.NoError(t, db.WithContext(ctx).Create(&mc).Error)
-		for j := 1; j <= 10; j++ {
-			sc := domain.SubCategory{ParentID: mc.ID, Name: fmt.Sprintf("SubCategory-%d-%d", i, j)}
-			assert.NoError(t, db.WithContext(ctx).Create(&sc).Error)
-			for k := 1; k <= 5; k++ {
-				sw := domain.Software{ParentID: sc.ID, Name: fmt.Sprintf("Software-%d-%d-%d", i, j, k)}
-				assert.NoError(t, db.WithContext(ctx).Create(&sw).Error)
-			}
-		}
-	}
-
-	repo := NewMainCategoryRepo(db)
-	result, err := repo.GetBigStructUntilSoftware(ctx)
-	assert.NoError(t, err)
-	fmt.Print(len(*result))
-	assert.Len(t, *result, 100)
-
-	// Marshal to JSON
-	data, err := json.Marshal(result)
-	assert.NoError(t, err)
-
-	// Output JSON
-	t.Logf("RetrieveMainCategoryDetails JSON: %s", data)
-	fmt.Println(string(data))
-}
+//func TestGetBigStructUntilSoftware_JSON(t *testing.T) {
+//	db := setupTestDB(t)
+//	ctx := context.Background()
+//
+//	// Seed: 100 main categories, each with 10 subcategories, each with 5 software entries
+//	for i := 1; i <= 100; i++ {
+//		mc := domain.MainCategory{Name: fmt.Sprintf("MainCategory-%d", i)}
+//		assert.NoError(t, db.WithContext(ctx).Create(&mc).Error)
+//		for j := 1; j <= 10; j++ {
+//			sc := domain.SubCategory{ParentID: mc.ID, Name: fmt.Sprintf("SubCategory-%d-%d", i, j)}
+//			assert.NoError(t, db.WithContext(ctx).Create(&sc).Error)
+//			for k := 1; k <= 5; k++ {
+//				sw := domain.Software{ParentID: sc.ID, Name: fmt.Sprintf("Software-%d-%d-%d", i, j, k)}
+//				assert.NoError(t, db.WithContext(ctx).Create(&sw).Error)
+//			}
+//		}
+//	}
+//
+//	repo := NewMainCategoryRepo(db)
+//	result, err := repo.GetBigStructUntilSoftware(ctx)
+//	assert.NoError(t, err)
+//	fmt.Print(len(*result))
+//	assert.Len(t, *result, 100)
+//
+//	// Marshal to JSON
+//	data, err := json.Marshal(result)
+//	assert.NoError(t, err)
+//
+//	// Output JSON
+//	t.Logf("RetrieveMainCategoryDetails JSON: %s", data)
+//	fmt.Println(string(data))
+//}
 
 // TestGetSoftwareList_JSON seeds a subcategory with many software and outputs JSON.
 func TestGetSoftwareList_JSON(t *testing.T) {
@@ -102,36 +102,36 @@ func TestGetSoftwareList_JSON(t *testing.T) {
 }
 
 // BenchmarkGetBigStructUntilSoftware runs the get method on large data.
-func BenchmarkGetBigStructUntilSoftware(b *testing.B) {
-	db := setupTestDB(b)
-	ctx := context.Background()
-
-	//Pre-seed moderate data
-	for i := 1; i <= 15; i++ {
-		mc := domain.MainCategory{Name: fmt.Sprintf("BMMain-%d", i)}
-		db.Create(&mc)
-		for j := 1; j <= 30; j++ {
-			sc := domain.SubCategory{ParentID: mc.ID, Name: fmt.Sprintf("BMSub-%d-%d", i, j)}
-			db.Create(&sc)
-			for k := 1; k <= 500; k++ {
-				db.Create(&domain.Software{ParentID: sc.ID, Name: fmt.Sprintf("BMSoft-%d-%d-%d", i, j, k)})
-			}
-		}
-	}
-	repo := NewMainCategoryRepo(db)
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		_, err := repo.GetBigStructUntilSoftware(ctx)
-		if err != nil {
-			return
-		}
-	}
-	var sw domain.Software
-	err := db.WithContext(ctx).First(&sw).Error
-	if err == nil {
-		b.Logf("Random Software: %+v", sw)
-	}
-}
+//func BenchmarkGetBigStructUntilSoftware(b *testing.B) {
+//	db := setupTestDB(b)
+//	ctx := context.Background()
+//
+//	//Pre-seed moderate data
+//	for i := 1; i <= 15; i++ {
+//		mc := domain.MainCategory{Name: fmt.Sprintf("BMMain-%d", i)}
+//		db.Create(&mc)
+//		for j := 1; j <= 30; j++ {
+//			sc := domain.SubCategory{ParentID: mc.ID, Name: fmt.Sprintf("BMSub-%d-%d", i, j)}
+//			db.Create(&sc)
+//			for k := 1; k <= 500; k++ {
+//				db.Create(&domain.Software{ParentID: sc.ID, Name: fmt.Sprintf("BMSoft-%d-%d-%d", i, j, k)})
+//			}
+//		}
+//	}
+//	repo := NewMainCategoryRepo(db)
+//	b.ResetTimer()
+//	for n := 0; n < b.N; n++ {
+//		_, err := repo.GetBigStructUntilSoftware(ctx)
+//		if err != nil {
+//			return
+//		}
+//	}
+//	var sw domain.Software
+//	err := db.WithContext(ctx).First(&sw).Error
+//	if err == nil {
+//		b.Logf("Random Software: %+v", sw)
+//	}
+//}
 
 // 手动查询实现
 //

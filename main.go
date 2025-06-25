@@ -1,47 +1,35 @@
 package main
 
 import (
-	"github.com/danvei233/softwareMarket-backend/app/handler"
-	repository "github.com/danvei233/softwareMarket-backend/app/repo/postgresql"
-	getservice "github.com/danvei233/softwareMarket-backend/app/service/Getservice"
+	"github.com/danvei233/softwareMarket-backend/app/final"
+	"github.com/danvei233/softwareMarket-backend/app/utils"
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"log"
 )
 
 func main() {
+	log := utils.GetLog()
 	router := gin.Default()
+	log.Info().Msg("Server is starting...")
 
-	// Configure router settings
-	api := router.Group("api/v1/")
-
-	Handler, err := SetupAPIService(api)
+	config, err := utils.NewAppConfig("config/app.ini")
 	if err != nil {
-		log.Fatal("Failed to setup service: ", err)
-	}
-
-	// Keep handler in scope
-	_ = Handler
-
-	// Start HTTP server
-	if err := router.Run(":8080"); err != nil {
-		log.Fatal("Failed to start server: ", err)
-	}
-}
-func SetupAPIService(api *gin.RouterGroup) (*handler.GetHandler, error) {
-	dsn := "host=localhost user=postgres password=root dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
-
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to load config file.")
 		panic(err)
 	}
-	v := repository.NewVersionRepo(db)
-	sw := repository.NewSoftwareRepo(db)
-	main := repository.NewMainCategoryRepo(db)
-	sub := repository.NewSubCategoryRepo(db)
-	service := getservice.NewGetService(db, main, sub, sw, v)
-	Handler := handler.NewGetHandeler(service, api)
-	return Handler, nil
+	log.Info().Msg("Config loaded.")
 
+	// Configure router settings
+	api := router.Group("api")
+	log.Info().Msg("API router registered.")
+	err = final.SetupAPIService(api, config)
+	log.Info().Msg("API service setup.")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to setup service.")
+	}
+	// Load App Config
+
+	// Start HTTP server
+	if err := router.Run(config.App.Addr + ":" + config.App.Port); err != nil {
+		log.Fatal().Err(err).Msg("Failed to start server. ")
+	}
 }

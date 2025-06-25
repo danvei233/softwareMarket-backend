@@ -1,0 +1,1 @@
+query getSoftware($id: Int!) { softwares(id: $id) { name icon versions { id version_number } } }

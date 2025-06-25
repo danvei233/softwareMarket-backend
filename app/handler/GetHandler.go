@@ -2,7 +2,9 @@ package handler
 
 import (
 	getservice "github.com/danvei233/softwareMarket-backend/app/service/Getservice"
+
 	"github.com/gin-gonic/gin"
+
 	"strconv"
 )
 
@@ -14,13 +16,14 @@ type GetHandler struct {
 func NewGetHandeler(s *getservice.GetService, r *gin.RouterGroup) *GetHandler {
 	handler := GetHandler{s: s, r: r}
 	r.GET("getmaincategorylist", handler.GetMainCategoryList)
-	r.GET("GetSoftwareFromSubcategory", handler.GetSoftwareFromSubcategory)
+	r.GET("Getsoftwarefromsubcategory", handler.GetSoftwareFromSubcategory)
 	r.GET("getsoftwaredetail", handler.GetSoftware)
 	r.GET("getsubcategorylist", handler.GetSubcategoryList)
 	r.GET("getsoftwareshortcut", handler.GetSoftwareShortCut)
 	return &handler
 
 }
+
 func (h *GetHandler) GetSoftwareFromSubcategory(g *gin.Context) {
 	var query struct {
 		Id    uint64 `form:"id" binding:"required"`
