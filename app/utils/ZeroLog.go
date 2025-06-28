@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var log zerolog.Logger
+
 func FormatTimestamp(i interface{}) string {
 
 	return color.Sprintf("[%s]", i)
@@ -49,10 +51,8 @@ func FormatLevel(i interface{}) string {
 
 	return color.New(k).Sprintf("\uE0B2") + color.New(bg).Sprintf("  %s  ", lvl) + color.New(k).Sprintf("\uE0B0")
 }
-
-func GetLog() zerolog.Logger {
-
-	return zerolog.New(zerolog.ConsoleWriter{
+func InitLog() {
+	log = zerolog.New(zerolog.ConsoleWriter{
 		Out:              os.Stdout,
 		NoColor:          false,
 		TimeFormat:       time.RFC3339,
@@ -62,4 +62,7 @@ func GetLog() zerolog.Logger {
 		FormatFieldName:  FormatFieldName,
 		FormatFieldValue: FormatFieldValue,
 	}).With().Timestamp().Logger()
+}
+func GetLog() zerolog.Logger {
+	return log
 }

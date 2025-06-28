@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	utils.InitLog()
 	log := utils.GetLog()
 	router := gin.Default()
 	log.Info().Msg("Server is starting...")
