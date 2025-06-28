@@ -16,7 +16,9 @@ type GraphqlHandler struct {
 }
 
 func NewGraphqlHandler(db *gorm.DB, group *gin.RouterGroup, cfg *utils.AppConfig) (*GraphqlHandler, error) {
-	config := core.Config{Production: !cfg.Debug.DisableProductionMode, DefaultLimit: 300}
+	config := core.Config{
+		Production:   !cfg.Debug.DisableProductionMode,
+		DefaultLimit: 300}
 	sqlDB, err := db.DB()
 	g, err := core.NewGraphJin(&config, sqlDB)
 	if err != nil {

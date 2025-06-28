@@ -22,7 +22,6 @@ type App struct {
 	Addr string
 }
 type Debug struct {
-	EnableGinDebugMode    bool
 	DisableProductionMode bool
 }
 

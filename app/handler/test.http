@@ -11,3 +11,19 @@ GET 127.0.0.1:8080/api/v1/getmaincategorylist
 GET 127.0.0.1:8080/api/v1/getsoftwarefromsubcategory?id=1
 ###
 GET 127.0.0.1:8080/api/v1/getsubcategorylist?id=1
+###
+POST 127.0.0.1:8080/api/graphql
+// graaphql: too many redirect/
+Content-Type: application/json
+
+{
+  "query": "query getSoftware($id: Int!) { softwares(id: $id) { name icon versions { id version_number } } }",
+  "variables": {
+    "id": 1
+  }
+}
+
+
+
+
+

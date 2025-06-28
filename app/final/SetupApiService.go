@@ -11,11 +11,12 @@ import (
 )
 
 func SetupAPIService(api *gin.RouterGroup, config *utils.AppConfig) error {
-
+	log := utils.GetLog()
 	dsn := config.GetDsn()
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		log.Fatal().Err(err).Msg("failed to connect database")
+
 	}
 	v := repository.NewVersionRepo(db)
 	sw := repository.NewSoftwareRepo(db)

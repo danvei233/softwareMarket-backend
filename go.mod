@@ -6,6 +6,7 @@ require (
 	github.com/dosco/graphjin/core/v3 v3.1.0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-ini/ini v1.67.0
+	github.com/gookit/color v1.5.4
 	github.com/rs/zerolog v1.34.0
 	gorm.io/gorm v1.30.0
 )
@@ -45,6 +46,7 @@ require (
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
+	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
