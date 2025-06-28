@@ -31,7 +31,7 @@ func NewGetService(db *gorm.DB, main domain.MainCategoryRepository, sub domain.S
 	}
 }
 func (s *GetService) GetMainCategory(ctx context.Context) (*[]domain.MainCategory, error) {
-	var mains *[]domain.MainCategory
+	mains := new([]domain.MainCategory)
 	var err error
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		ctxV := context.WithValue(ctx, "tx", tx)
@@ -41,11 +41,11 @@ func (s *GetService) GetMainCategory(ctx context.Context) (*[]domain.MainCategor
 	if err != nil {
 		return nil, err
 	}
-	return mains, err
+	return mains, nil
 }
 
 func (s *GetService) GetAllSoftWareShortcut(ctx context.Context, id uint64, subPage, subLimit int, softPage, softLimit int) (*domain.MainCategory, error) {
-	var mc *domain.MainCategory
+	mc := new(domain.MainCategory)
 	var err error
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
@@ -56,11 +56,11 @@ func (s *GetService) GetAllSoftWareShortcut(ctx context.Context, id uint64, subP
 	if err != nil {
 		return nil, err
 	}
-	return mc, err
+	return mc, nil
 }
 
 func (s *GetService) GetSoftwareFromSubcategory(ctx context.Context, id uint64, sublimit, subpage int) (*domain.SubCategory, error) {
-	var sub *domain.SubCategory
+	sub := new(domain.SubCategory)
 	var err error
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		ctxV := context.WithValue(ctx, "tx", tx)
@@ -73,7 +73,7 @@ func (s *GetService) GetSoftwareFromSubcategory(ctx context.Context, id uint64, 
 	return sub, nil
 }
 func (s *GetService) GetSoftwareDetail(ctx context.Context, id uint64) (*domain.Software, error) {
-	var sw *domain.Software
+	sw := new(domain.Software)
 	var err error
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 
@@ -84,7 +84,7 @@ func (s *GetService) GetSoftwareDetail(ctx context.Context, id uint64) (*domain.
 	if err != nil {
 		return nil, err
 	}
-	return sw, err
+	return sw, nil
 }
 
 // GetAllSoftWareShortcut
@@ -92,7 +92,7 @@ func (s *GetService) GetSoftwareDetail(ctx context.Context, id uint64) (*domain.
 // GetSubListByMainId
 
 func (s *GetService) GetSubList(ctx context.Context, id uint64) (*[]domain.SubCategory, error) {
-	var subList *[]domain.SubCategory
+	subList := new([]domain.SubCategory)
 	var err error
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
@@ -103,5 +103,5 @@ func (s *GetService) GetSubList(ctx context.Context, id uint64) (*[]domain.SubCa
 	if err != nil {
 		return nil, err
 	}
-	return subList, err
+	return subList, nil
 }
