@@ -15,10 +15,10 @@ type MainCategoryRepository interface {
 	RetrieveMainCategoryDetails(ctx context.Context,
 		id uint64,
 		subPage, subLimit int,
-		softPage, softLimit int) (*MainCategory, error)
+		softPage, softLimit int, t ...any) (*MainCategory, error)
 
 	Update(ctx context.Context, o MainCategory) error
 	Del(ctx context.Context, id uint64) error
 	GetSubListByMainId(ctx context.Context, id uint64) (*[]SubCategory, error)
-	GetBigStructUntilSoftware(ctx context.Context) (*[]MainCategory, error)
+	//GetBigStructUntilSoftware(ctx context.Context) (*[]MainCategory, error)
 }

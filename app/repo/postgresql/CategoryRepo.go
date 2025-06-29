@@ -19,9 +19,10 @@ func NewMainCategoryRepo(db *gorm.DB) domain.MainCategoryRepository {
 }
 
 func (d *dt) WithTransaction(ctx context.Context) *gorm.DB {
-if txDB, ok := ctx.Value("tx").(*gorm.DB); ok || txDB != nil {
-	return txDB
-}
+	if txDB, ok := ctx.Value("tx").(*gorm.DB); ok || txDB != nil {
+		return txDB
+	}
+	return d.db
 }
 func (r *SQLMainCategoryRepo) GetMainCategoryList(ctx context.Context) (*[]domain.MainCategory, error) {
 	var mains []domain.MainCategory
@@ -35,10 +36,9 @@ func (r *SQLMainCategoryRepo) RetrieveMainCategoryDetails(
 	ctx context.Context,
 	id uint64,
 	subPage, subLimit int,
-	softPage, softLimit int,
-) (*domain.MainCategory, error) {
+	softPage, softLimit int, t ...any) (*domain.MainCategory, error) {
 	var main domain.MainCategory
-
+	_ = t
 	err := r.db.WithTransaction(ctx).WithContext(ctx).
 		// 只查询这一条主分类
 		Where("id = ?", id).
@@ -86,17 +86,4 @@ func (r *SQLMainCategoryRepo) GetSubListByMainId(ctx context.Context, id uint64)
 		return nil, err
 	}
 	return &subs, nil
-}
-
-// GetBigStructUntilSoftware retrieves all main categories with their subcategories and software
-func (r *SQLMainCategoryRepo) GetBigStructUntilSoftware(ctx context.Context) (*[]domain.MainCategory, error) {
-	var mainCategories []domain.MainCategory
-
-	if err := r.db.WithTransaction(ctx).WithContext(ctx).
-		Preload("SubCategories").
-		Preload("SubCategories.Softwares").
-		Find(&mainCategories).Error;err != nil {
-		return nil, err
-	}
-	return &mainCategories, nil
 }

@@ -31,40 +31,40 @@ func NewGetService(db *gorm.DB, main domain.MainCategoryRepository, sub domain.S
 	}
 }
 func (s *GetService) GetMainCategory(ctx context.Context) (*[]domain.MainCategory, error) {
-	var mains *[]domain.MainCategory
+	mains := new([]domain.MainCategory)
 	var err error
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		ctxv := context.WithValue(ctx, "tx", tx)
-		mains, err = s.r.main.GetMainCategoryList(ctxv)
+		ctxV := context.WithValue(ctx, "tx", tx)
+		mains, err = s.r.main.GetMainCategoryList(ctxV)
 		return err
 	})
 	if err != nil {
 		return nil, err
 	}
-	return mains, err
+	return mains, nil
 }
 
 func (s *GetService) GetAllSoftWareShortcut(ctx context.Context, id uint64, subPage, subLimit int, softPage, softLimit int) (*domain.MainCategory, error) {
-	var mc *domain.MainCategory
+	mc := new(domain.MainCategory)
 	var err error
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		ctxv := context.WithValue(ctx, "tx", tx)
-		mc, err = s.r.main.RetrieveMainCategoryDetails(ctxv, id, subPage, subLimit, softPage, softLimit)
+		ctxV := context.WithValue(ctx, "tx", tx)
+		mc, err = s.r.main.RetrieveMainCategoryDetails(ctxV, id, subPage, subLimit, softPage, softLimit)
 		return err
 	})
 	if err != nil {
 		return nil, err
 	}
-	return mc, err
+	return mc, nil
 }
 
-func (s *GetService) GetSoftwareFromSubcategory(ctx context.Context, id uint64, sublimt, subpage int) (*domain.SubCategory, error) {
-	var sub *domain.SubCategory
+func (s *GetService) GetSoftwareFromSubcategory(ctx context.Context, id uint64, sublimit, subpage int) (*domain.SubCategory, error) {
+	sub := new(domain.SubCategory)
 	var err error
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		ctxv := context.WithValue(ctx, "tx", tx)
-		sub, err = s.r.sub.GetSoftwareList(ctxv, id, subpage, sublimt)
+		ctxV := context.WithValue(ctx, "tx", tx)
+		sub, err = s.r.sub.GetSoftwareList(ctxV, id, subpage, sublimit)
 		return err
 	})
 	if err != nil {
@@ -73,18 +73,18 @@ func (s *GetService) GetSoftwareFromSubcategory(ctx context.Context, id uint64, 
 	return sub, nil
 }
 func (s *GetService) GetSoftwareDetail(ctx context.Context, id uint64) (*domain.Software, error) {
-	var sw *domain.Software
+	sw := new(domain.Software)
 	var err error
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 
-		ctxv := context.WithValue(ctx, "tx", tx)
-		sw, err = s.r.sw.GetSoftwareDetail(ctxv, id)
+		ctxV := context.WithValue(ctx, "tx", tx)
+		sw, err = s.r.sw.GetSoftwareDetail(ctxV, id)
 		return err
 	})
 	if err != nil {
 		return nil, err
 	}
-	return sw, err
+	return sw, nil
 }
 
 // GetAllSoftWareShortcut
@@ -92,16 +92,16 @@ func (s *GetService) GetSoftwareDetail(ctx context.Context, id uint64) (*domain.
 // GetSubListByMainId
 
 func (s *GetService) GetSubList(ctx context.Context, id uint64) (*[]domain.SubCategory, error) {
-	var subList *[]domain.SubCategory
+	subList := new([]domain.SubCategory)
 	var err error
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-ctxV := context.WithValue(ctx, "tx", tx)
-		subList, err = s.r.main.GetSubListByMainId(ctxv, id)
+		ctxV := context.WithValue(ctx, "tx", tx)
+		subList, err = s.r.main.GetSubListByMainId(ctxV, id)
 		return err
 	})
 	if err != nil {
 		return nil, err
 	}
-	return subList, err
+	return subList, nil
 }
