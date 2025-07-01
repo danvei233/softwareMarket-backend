@@ -1,13 +1,20 @@
 package utils
 
-import "github.com/go-ini/ini"
+import (
+	"errors"
+	"github.com/go-ini/ini"
+)
 
 type AppConfig struct {
 	Database Database
+	Dir      Dir
 	App      App
 	Debug    Debug
 	cfg      *ini.File
 }
+
+var conf AppConfig
+
 type Database struct {
 	Address  string
 	Port     string // strconv too stupid
@@ -25,6 +32,11 @@ type Debug struct {
 	DisableProductionMode bool
 }
 
+type Dir struct {
+	DataRelativePath   string
+	AssertRelativePath string
+}
+
 func (c *AppConfig) ReloadConfig() error {
 	return c.cfg.Reload()
 
@@ -35,15 +47,21 @@ func (c *AppConfig) GetDsn() string {
 		c.Database.DBName + " port=" + c.Database.Port + " sslmode=" + c.Database.SSLMode + " TimeZone=" + c.Database.TimeZone
 
 }
-func NewAppConfig(filepath string) (*AppConfig, error) {
+func GetConfig() (*AppConfig, error) {
+	if conf.cfg == nil {
+		return nil, errors.New("not init")
+	}
+	return &conf, nil
+}
+func InitAppConfig(filepath string) (*AppConfig, error) {
 	f, err := ini.Load(filepath)
 	if err != nil {
 		return nil, err
 	}
-	app := AppConfig{cfg: f}
-	if err := f.MapTo(&app); err != nil {
+	conf := AppConfig{cfg: f}
+	if err := f.MapTo(&conf); err != nil {
 		return nil, err
 	}
-	return &app, nil
+	return &conf, nil
 
 }

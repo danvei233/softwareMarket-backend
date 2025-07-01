@@ -12,7 +12,7 @@ func main() {
 	router := gin.Default()
 	log.Info().Msg("Server is starting...")
 
-	config, err := utils.NewAppConfig("config/app.ini")
+	config, err := utils.InitAppConfig("config/app.ini")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to load config file.")
 		panic(err)
@@ -20,7 +20,7 @@ func main() {
 	log.Info().Msg("Config loaded.")
 
 	// Configure router settings
-	api := router.Group("api")
+	api := router.Group("")
 	log.Info().Msg("API router registered.")
 	err = final.SetupAPIService(api, config)
 	log.Info().Msg("API service setup.")
