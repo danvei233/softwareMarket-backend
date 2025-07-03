@@ -1,0 +1,61 @@
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  build:
+    outputs:
+      server_file_id: ${{ steps.out.outputs.artifact-id}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "1.23"
+      - name: fetch deps
+        run: |
+          go mod tidy
+          go mod vendor
+      - name: Build
+        run: |
+          go build -o ./target/server_debug
+          go build -ldflags="-s -w" -o ./target/server_release
+      - name: upload artifact
+        id: out
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'dist'
+          path: ./target/*
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '1'
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "1.23"
+      - name: fetch deps
+        run: |
+          go mod tidy
+          go mod vendor
+      - name: unit test
+        run: go test -v ./...
+  release:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: mkdir -p /tmp/dist
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.build.outputs.server_file_id }}
+          path: /tmp/dist/
+      - uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          generate_release_notes: true
+          make_latest: true
+          files: /tmp/dist/*
